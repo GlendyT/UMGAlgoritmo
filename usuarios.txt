@@ -1,0 +1,2 @@
+Administrador|ADM001|Admin|Oficina Central|123-456|admin@envios.com
+Controlador|CTL001|Control|Centro Control|123-457|control@envios.com
