@@ -71,6 +71,10 @@ void cargarUsuarios(SistemaEnvios &sistema)
                 {
                     sistema.registrarUsuario(new Administrador(nombre, direccion, telefono, email, id));
                 }
+                else if (tipo == "Controlador")
+                {
+                    sistema.registrarUsuario(new Controlador(nombre, direccion, telefono, email, id));
+                }
             }
         }
         archivo.close();
@@ -84,9 +88,11 @@ void mostrarMenuPrincipal()
     cout << "1. Registrar Cliente" << endl;
     cout << "2. Registrar Mensajero" << endl;
     cout << "3. Registrar Administrador" << endl;
-    cout << "4. Ingresar Cliente" << endl;
-    cout << "5. Ingresar Mensajero" << endl;
-    cout << "6. Ingresar Administrador" << endl;
+    cout << "4. Registrar Controlador" << endl;
+    cout << "5. Ingresar Cliente" << endl;
+    cout << "6. Ingresar Mensajero" << endl;
+    cout << "7. Ingresar Administrador" << endl;
+    cout << "8. Ingresar Controlador" << endl;
     cout << "0. Salir" << endl;
     cout << "Opcion: ";
 }
@@ -441,8 +447,32 @@ int main()
             }
             break;
         }
-
         case 4:
+        { // Registrar Controlador
+            cout << "=== REGISTRO DE CONTROLADOR ===" << endl;
+            cout << "Nombre: ";
+            getline(cin, nombre);
+            cout << "Direccion: ";
+            getline(cin, direccion);
+            cout << "Telefono: ";
+            getline(cin, telefono);
+            cout << "Email: ";
+            getline(cin, email);
+            cout << "ID: ";
+            getline(cin, id);
+
+            if (sistema.registrarUsuario(new Controlador(nombre, direccion, telefono, email, id)))
+            {
+                cout << "Controlador registrado exitosamente!" << endl;
+            }
+            else
+            {
+                cout << "Error: ID ya existe" << endl;
+            }
+            break;
+        }
+
+        case 5:
         { // Ingresar Cliente
             cout << "=== INGRESO DE CLIENTE ===" << endl;
             cout << "ID Cliente: ";
@@ -461,7 +491,7 @@ int main()
             break;
         }
 
-        case 5:
+        case 6:
         { // Ingresar Mensajero
             cout << "=== INGRESO DE MENSAJERO ===" << endl;
             cout << "ID Mensajero: ";
@@ -480,7 +510,7 @@ int main()
             break;
         }
 
-        case 6:
+        case 7:
         { // Ingresar Administrador
             cout << "=== INGRESO DE ADMINISTRADOR ===" << endl;
             cout << "ID Administrador: ";
@@ -498,11 +528,28 @@ int main()
             }
             break;
         }
+        case 8:
+        { // Ingresar Controlador
+            cout << "=== INGRESO DE CONTROLADOR ===" << endl;
+            cout << "ID Controlador: ";
+            getline(cin, id);
+
+            Usuario *usuario = sistema.buscarUsuario(id);
+            if (usuario && usuario->getTipo() == "Controlador")
+            {
+                cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
+                menuAdministrador(sistema, id); // Controladors use same menu as administrators
+            }
+            else
+            {
+                cout << "Controlador no encontrado o ID invalido!" << endl;
+            }
+            break;
+        }
         }
     } while (opcion != 0);
 
     guardarUsuarios(sistema);
-
 
     cout << "Gracias por usar el Sistema de Envios Garantizados!" << endl;
     return 0;
