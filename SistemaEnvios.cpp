@@ -70,7 +70,7 @@ string SistemaEnvios::solicitarEnvio(string clienteId, string origen, string des
 
 bool SistemaEnvios::asignarMensajero(string paqueteId, string mensajeroId, string controladorId) {
     Usuario* controlador = buscarUsuario(controladorId);
-    if(!controlador || controlador->getTipo() != "Controlador") {
+    if(!controlador || (controlador->getTipo() != "Controlador" && controlador->getTipo() != "Administrador")) {
         return false;
     }
     
