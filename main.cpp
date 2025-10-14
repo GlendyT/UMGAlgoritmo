@@ -2,7 +2,51 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <cctype>
+#include <limits>
 using namespace std;
+
+bool esNumerico(const string& str) {
+    if (str.empty()) return false;
+    for (char c : str) {
+        if (!isdigit(c) && c != '-' && c != ' ') {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Función para validar email
+bool validarEmail(const string& email) {
+    return email.find('@') != string::npos && !email.empty();
+}
+
+// Función para obtener teléfono válido
+string obtenerTelefonoValido() {
+    string telefono;
+    do {
+        cout << "Telefono (solo numeros, guiones y espacios): ";
+        getline(cin, telefono);
+        if (!esNumerico(telefono)) {
+            cout << "Error: El telefono debe contener solo numeros, guiones y espacios." << endl;
+        }
+    } while (!esNumerico(telefono));
+    return telefono;
+}
+
+// Función para obtener email válido
+string obtenerEmailValido() {
+    string email;
+    do {
+        cout << "Email (debe contener @): ";
+        getline(cin, email);
+        if (!validarEmail(email)) {
+            cout << "Error: El email debe contener el simbolo @." << endl;
+        }
+    } while (!validarEmail(email));
+    return email;
+}
+
 
 void guardarUsuarios(SistemaEnvios &sistema)
 {
@@ -150,7 +194,14 @@ void menuCliente(SistemaEnvios &sistema, string clienteId)
             cout << "Direccion Destino: ";
             getline(cin, destino);
             cout << "Peso (max 15 lbs): ";
-            cin >> peso;
+            
+            // Validación de entrada para el peso
+            if (!(cin >> peso)) {
+                cout << "Error: Debe ingresar un valor numérico para el peso." << endl;
+                cin.clear(); // Limpiar el estado de error
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Descartar entrada incorrecta
+                break;
+            }
             cin.ignore();
 
             // Validar el peso del paquete
@@ -213,19 +264,35 @@ void menuMensajero(SistemaEnvios &sistema, string mensajeroId)
 
         case 2:
         {
+            // Buscar paquetes asignados al mensajero y en transito
+            vector<Paquete> asignados = sistema.obtenerPaquetesPorEstado(EN_TRANSITO);
+            vector<string> misPaquetes;
+            for (const Paquete &p : asignados) {
+                if (p.getMensajeroId() == mensajeroId) {
+                    misPaquetes.push_back(p.getId());
+                }
+            }
+
+            if (misPaquetes.empty()) {
+                cout << "No tienes ningun paquete asignado" << endl;
+                break;
+            }
+
+            cout << "Paquetes asignados:\n";
+            for (const string &pid : misPaquetes) {
+                cout << "- " << pid << endl;
+            }
+
             string paqueteId;
             int estado;
-            cout << "ID Paquete: ";
+            cout << "ID Paquete (elige uno de la lista): ";
             getline(cin, paqueteId);
             cout << "Estado (0=Solicitado, 1=En Transito, 2=Entregado): ";
             cin >> estado;
 
-            if (sistema.actualizarEstadoPaquete(paqueteId, (EstadoPaquete)estado))
-            {
+            if (sistema.actualizarEstadoPaquete(paqueteId, (EstadoPaquete)estado)) {
                 cout << "Estado actualizado!" << endl;
-            }
-            else
-            {
+            } else {
                 cout << "Error al actualizar estado" << endl;
             }
             break;
@@ -338,6 +405,65 @@ void menuAdministrador(SistemaEnvios &sistema, string adminId)
     } while (opcion != 0);
 }
 
+// Nuevo: menú específico para Controlador
+void menuControlador(SistemaEnvios &sistema, string controladorId)
+{
+    int opcion;
+    do
+    {
+        cout << "\n=== MENU CONTROLADOR ===" << endl;
+        cout << "1. Ver solicitudes (paquetes solicitados)" << endl;
+        cout << "2. Asignar mensajero a paquete" << endl;
+        cout << "0. Volver al menu principal" << endl;
+        cout << "Opcion: ";
+
+        cin >> opcion;
+        cin.ignore();
+
+        switch (opcion)
+        {
+        case 1:
+        {
+            vector<Paquete> solicitudes = sistema.obtenerPaquetesPorEstado(SOLICITADO);
+            if (solicitudes.empty())
+            {
+                cout << "No hay solicitudes pendientes." << endl;
+            }
+            else
+            {
+                cout << "Solicitudes pendientes:" << endl;
+                for (const Paquete &p : solicitudes)
+                {
+                    cout << "ID: " << p.getId() << " | Cliente: " << p.getClienteId()
+                         << " | Origen: " << p.getDireccionOrigen() << " | Destino: " << p.getDireccionDestino()
+                         << " | Peso: " << p.getPeso() << " lbs" << endl;
+                }
+            }
+            break;
+        }
+
+        case 2:
+        {
+            string paqueteId, mensajeroId;
+            cout << "ID Paquete a asignar: ";
+            getline(cin, paqueteId);
+            cout << "ID Mensajero: ";
+            getline(cin, mensajeroId);
+
+            if (sistema.asignarMensajero(paqueteId, mensajeroId, controladorId))
+            {
+                cout << "Mensajero asignado y notificado correctamente." << endl;
+            }
+            else
+            {
+                cout << "Error: No se pudo asignar el mensajero (verifique IDs o estado del paquete)." << endl;
+            }
+            break;
+        }
+        }
+    } while (opcion != 0);
+}
+
 int main()
 {
     SistemaEnvios sistema;
@@ -373,55 +499,54 @@ int main()
 
         switch (opcion)
         {
-        case 1:
+              case 1:
         { // Registrar Cliente
             cout << "=== REGISTRO DE CLIENTE ===" << endl;
             cout << "Nombre: ";
             getline(cin, nombre);
             cout << "Direccion: ";
             getline(cin, direccion);
-            cout << "Telefono: ";
-            getline(cin, telefono);
-            cout << "Email: ";
-            getline(cin, email);
-            cout << "ID: ";
-            getline(cin, id);
+            
+            telefono = obtenerTelefonoValido();
+            email = obtenerEmailValido();
+
+            string id = sistema.generarIdUsuario("CLI");
 
             if (sistema.registrarUsuario(new Cliente(nombre, direccion, telefono, email, id)))
             {
-                cout << "Cliente registrado exitosamente!" << endl;
+                cout << "Cliente registrado exitosamente! ID asignado: " << id << endl;
             }
             else
             {
-                cout << "Error: ID ya existe" << endl;
+                cout << "Error en el registro" << endl;
             }
             break;
         }
 
-        case 2:
+  case 2:
         { // Registrar Mensajero
             cout << "=== REGISTRO DE MENSAJERO ===" << endl;
             cout << "Nombre: ";
             getline(cin, nombre);
             cout << "Direccion: ";
             getline(cin, direccion);
-            cout << "Telefono: ";
-            getline(cin, telefono);
-            cout << "Email: ";
-            getline(cin, email);
-            cout << "ID: ";
-            getline(cin, id);
+            
+            telefono = obtenerTelefonoValido();
+            email = obtenerEmailValido();
+
+            string id = sistema.generarIdUsuario("MSG");
 
             if (sistema.registrarUsuario(new Mensajero(nombre, direccion, telefono, email, id)))
             {
-                cout << "Mensajero registrado exitosamente!" << endl;
+                cout << "Mensajero registrado exitosamente! ID asignado: " << id << endl;
             }
             else
             {
-                cout << "Error: ID ya existe" << endl;
+                cout << "Error en el registro" << endl;
             }
             break;
         }
+
 
         case 3:
         { // Registrar Administrador
@@ -430,23 +555,23 @@ int main()
             getline(cin, nombre);
             cout << "Direccion: ";
             getline(cin, direccion);
-            cout << "Telefono: ";
-            getline(cin, telefono);
-            cout << "Email: ";
-            getline(cin, email);
-            cout << "ID: ";
-            getline(cin, id);
+            
+            telefono = obtenerTelefonoValido();
+            email = obtenerEmailValido();
+
+            string id = sistema.generarIdUsuario("ADM");
 
             if (sistema.registrarUsuario(new Administrador(nombre, direccion, telefono, email, id)))
             {
-                cout << "Administrador registrado exitosamente!" << endl;
+                cout << "Administrador registrado exitosamente! ID asignado: " << id << endl;
             }
             else
             {
-                cout << "Error: ID ya existe" << endl;
+                cout << "Error en el registro" << endl;
             }
             break;
         }
+
         case 4:
         { // Registrar Controlador
             cout << "=== REGISTRO DE CONTROLADOR ===" << endl;
@@ -454,35 +579,35 @@ int main()
             getline(cin, nombre);
             cout << "Direccion: ";
             getline(cin, direccion);
-            cout << "Telefono: ";
-            getline(cin, telefono);
-            cout << "Email: ";
-            getline(cin, email);
-            cout << "ID: ";
-            getline(cin, id);
+            
+            telefono = obtenerTelefonoValido();
+            email = obtenerEmailValido();
+
+            string id = sistema.generarIdUsuario("CTL");
 
             if (sistema.registrarUsuario(new Controlador(nombre, direccion, telefono, email, id)))
             {
-                cout << "Controlador registrado exitosamente!" << endl;
+                cout << "Controlador registrado exitosamente! ID asignado: " << id << endl;
             }
             else
             {
-                cout << "Error: ID ya existe" << endl;
+                cout << "Error en el registro" << endl;
             }
             break;
         }
+
 
         case 5:
         { // Ingresar Cliente
             cout << "=== INGRESO DE CLIENTE ===" << endl;
             cout << "ID Cliente: ";
-            getline(cin, id);
+            getline(cin, nombre); // reutilizando variable nombre para el id
 
-            Usuario *usuario = sistema.buscarUsuario(id);
+            Usuario *usuario = sistema.buscarUsuario(nombre);
             if (usuario && usuario->getTipo() == "Cliente")
             {
                 cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuCliente(sistema, id);
+                menuCliente(sistema, nombre);
             }
             else
             {
@@ -495,13 +620,13 @@ int main()
         { // Ingresar Mensajero
             cout << "=== INGRESO DE MENSAJERO ===" << endl;
             cout << "ID Mensajero: ";
-            getline(cin, id);
+            getline(cin, nombre); // reutilizando variable nombre para el id
 
-            Usuario *usuario = sistema.buscarUsuario(id);
+            Usuario *usuario = sistema.buscarUsuario(nombre);
             if (usuario && usuario->getTipo() == "Mensajero")
             {
                 cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuMensajero(sistema, id);
+                menuMensajero(sistema, nombre);
             }
             else
             {
@@ -514,13 +639,13 @@ int main()
         { // Ingresar Administrador
             cout << "=== INGRESO DE ADMINISTRADOR ===" << endl;
             cout << "ID Administrador: ";
-            getline(cin, id);
+            getline(cin, nombre); // reutilizando variable nombre para el id
 
-            Usuario *usuario = sistema.buscarUsuario(id);
+            Usuario *usuario = sistema.buscarUsuario(nombre);
             if (usuario && usuario->getTipo() == "Administrador")
             {
                 cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuAdministrador(sistema, id);
+                menuAdministrador(sistema, nombre);
             }
             else
             {
@@ -532,13 +657,13 @@ int main()
         { // Ingresar Controlador
             cout << "=== INGRESO DE CONTROLADOR ===" << endl;
             cout << "ID Controlador: ";
-            getline(cin, id);
+            getline(cin, nombre); // reutilizando variable nombre para el id
 
-            Usuario *usuario = sistema.buscarUsuario(id);
+            Usuario *usuario = sistema.buscarUsuario(nombre);
             if (usuario && usuario->getTipo() == "Controlador")
             {
                 cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuAdministrador(sistema, id); // Controladors use same menu as administrators
+                menuControlador(sistema, nombre);
             }
             else
             {
