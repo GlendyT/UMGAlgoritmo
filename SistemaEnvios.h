@@ -28,6 +28,7 @@ public:
     bool registrarUsuario(Usuario* usuario);
     bool eliminarUsuario(string id);
     Usuario* buscarUsuario(string id);
+    bool emailExiste(const string &email);
     vector<Usuario*> obtenerUsuarios();
     string generarIdUsuario(string prefijo);
     
@@ -43,9 +44,14 @@ public:
     // Tarifas
     double calcularTarifa(double peso, time_t fechaSolicitud);
     void actualizarTarifaBase(double nuevaTarifa);
+    double getTarifaBase() const;
     
     // Reportes
     vector<Paquete> obtenerPaquetesPorEstado(EstadoPaquete estado);
+    // Obtener paquetes de un cliente
+    vector<Paquete> obtenerPaquetesPorCliente(string clienteId);
+    // Obtener mensajeros disponibles (no en ruta)
+    vector<Mensajero*> obtenerMensajerosDisponibles();
     void generarReporte();
 };
 

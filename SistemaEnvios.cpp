@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-SistemaEnvios::SistemaEnvios() : tarifaBase(10.0), contadorId(1000), controladorUsuarios(1) {}
+SistemaEnvios::SistemaEnvios() : tarifaBase(45.0), contadorId(1000), controladorUsuarios(1) {}
 
 SistemaEnvios::~SistemaEnvios()
 {
@@ -67,6 +67,17 @@ Usuario *SistemaEnvios::buscarUsuario(string id)
                       { return u->getId() == id && u->isActivo(); });
 
     return (it != usuarios.end()) ? *it : nullptr;
+}
+
+bool SistemaEnvios::emailExiste(const string &email)
+{
+    auto toLower = [](const string &s){ string out=s; for (char &c: out) c = tolower(static_cast<unsigned char>(c)); return out; };
+    string emailLower = toLower(email);
+    for (Usuario *u : usuarios) {
+        if (!u->isActivo()) continue;
+        if (toLower(u->getEmail()) == emailLower) return true;
+    }
+    return false;
 }
 
 vector<Usuario *> SistemaEnvios::obtenerUsuarios()
@@ -185,19 +196,21 @@ vector<string> SistemaEnvios::obtenerMensajes(string usuarioId)
 
 double SistemaEnvios::calcularTarifa(double peso, time_t fechaSolicitud)
 {
-    double tarifa = tarifaBase * peso;
-
-    if (!esHorarioNormal(fechaSolicitud))
-    {
+    // Ahora la tarifa es FIJA por paquete (tarifaBase). El peso ya no afecta el precio.
+    double tarifa = tarifaBase;
+    if (!esHorarioNormal(fechaSolicitud)) {
         tarifa *= 2.0;
     }
-
     return tarifa;
 }
 
 void SistemaEnvios::actualizarTarifaBase(double nuevaTarifa)
 {
     tarifaBase = nuevaTarifa;
+}
+
+double SistemaEnvios::getTarifaBase() const {
+    return tarifaBase;
 }
 
 vector<Paquete> SistemaEnvios::obtenerPaquetesPorEstado(EstadoPaquete estado)
@@ -208,6 +221,33 @@ vector<Paquete> SistemaEnvios::obtenerPaquetesPorEstado(EstadoPaquete estado)
         if (p.getEstado() == estado)
         {
             resultado.push_back(p);
+        }
+    }
+    return resultado;
+}
+
+vector<Paquete> SistemaEnvios::obtenerPaquetesPorCliente(string clienteId)
+{
+    vector<Paquete> resultado;
+    for (const Paquete &p : paquetes)
+    {
+        if (p.getClienteId() == clienteId)
+        {
+            resultado.push_back(p);
+        }
+    }
+    return resultado;
+}
+
+vector<Mensajero*> SistemaEnvios::obtenerMensajerosDisponibles()
+{
+    vector<Mensajero*> resultado;
+    for (Usuario *u : usuarios)
+    {
+        if (u->getTipo() == "Mensajero")
+        {
+            Mensajero *m = dynamic_cast<Mensajero*>(u);
+            if (m && !m->isEnRuta()) resultado.push_back(m);
         }
     }
     return resultado;
@@ -233,5 +273,8 @@ bool SistemaEnvios::esHorarioNormal(time_t fecha)
     int hora = timeinfo->tm_hour;
     int diaSemana = timeinfo->tm_wday;
 
-    return (diaSemana >= 1 && diaSemana <= 6) && (hora >= 8 && hora <= 18);
+    // Consideramos horario normal de 8:00 (inclusive) a 18:00 (exclusive).
+    // La tarifa se duplicará solo si es antes de las 8am (hora < 8)
+    // o despues de las 6pm (hora >= 18).
+    return (diaSemana >= 1 && diaSemana <= 6) && (hora >= 8 && hora < 18);
 }
