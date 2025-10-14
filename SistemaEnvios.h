@@ -15,6 +15,10 @@ private:
     map<string, string> mensajes;
     double tarifaBase;
     int contadorId;
+    int controladorUsuarios;
+
+    string generarId();
+    bool esHorarioNormal(time_t fecha);
 
 public:
     SistemaEnvios();
@@ -25,6 +29,7 @@ public:
     bool eliminarUsuario(string id);
     Usuario* buscarUsuario(string id);
     vector<Usuario*> obtenerUsuarios();
+    string generarIdUsuario(string prefijo);
     
     // Gestión de paquetes
     string solicitarEnvio(string clienteId, string origen, string destino, double peso, string desc);
@@ -42,10 +47,6 @@ public:
     // Reportes
     vector<Paquete> obtenerPaquetesPorEstado(EstadoPaquete estado);
     void generarReporte();
-    
-private:
-    string generarId();
-    bool esHorarioNormal(time_t fecha);
 };
 
 #endif

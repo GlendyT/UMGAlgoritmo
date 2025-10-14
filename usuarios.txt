@@ -1,2 +1,4 @@
 Administrador|ADM001|Admin|Oficina Central|123-456|admin@envios.com
 Controlador|CTL001|Control|Centro Control|123-457|control@envios.com
+Cliente|CLI001|Jimin|5ta avenida|1234-4567|jimin@gmail.com
+Mensajero|MSG001|Hoseok|14va avenida|123456789|hoseok@hotmail.com
