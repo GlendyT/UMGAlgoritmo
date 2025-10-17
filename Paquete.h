@@ -51,3 +51,5 @@ public:
 };
 
 #endif
+
+/* Aqui se define que se puede hacer con el paquete, por ejemplo un paquete puede tener asignado un ID, el Cliente, una direccion,etc*/
