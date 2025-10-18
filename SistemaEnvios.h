@@ -56,3 +56,5 @@ public:
 };
 
 #endif
+
+/*Aqui se declarara las cosas que tendra el proyecto, un usuario, paquete, menu, y que el menu podra realizar operaciones como registrar Usuario, solicitar envio, asigar mensajero, generar reporte.*/

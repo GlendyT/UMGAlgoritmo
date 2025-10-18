@@ -14,3 +14,6 @@ Controlador::Controlador(string n, string dir, string tel, string em, string i)
 
 Mensajero::Mensajero(string n, string dir, string tel, string em, string i)
     : Usuario(n, dir, tel, em, i), enRuta(false) {}
+
+
+    /*Aqui es donde se crea cada usuario, heredando las caracterisitcas, pero con rol distinto*/

@@ -229,6 +229,7 @@ struct PaqueteRegistro
     double costo;
 };
 
+// Leer paquetes desde archivo paquetes.txt
 vector<PaqueteRegistro> leerPaquetesDesdeArchivo()
 {
     vector<PaqueteRegistro> resultado;
@@ -284,6 +285,7 @@ vector<PaqueteRegistro> leerPaquetesDesdeArchivo()
     return resultado;
 }
 
+// Cargar usuarios desde archivo usuarios.txt
 void cargarUsuarios(SistemaEnvios &sistema)
 {
     ifstream archivo("usuarios.txt");
@@ -338,6 +340,7 @@ void cargarUsuarios(SistemaEnvios &sistema)
     }
 }
 
+//Menu Principal
 void mostrarMenuPrincipal()
 {
     cout << "\n===  SISTEMA DE ENVIOS GARANTIZADOS  ===" << endl;
@@ -349,6 +352,7 @@ void mostrarMenuPrincipal()
     cout << "Opcion: ";
 }
 
+//Menu Crear Cuenta
 void mostrarMenuCrearCuenta()
 {
     cout << "\n=== CREAR UNA CUENTA ===" << endl;
@@ -360,6 +364,7 @@ void mostrarMenuCrearCuenta()
     cout << "Opcion: ";
 }
 
+//Menu Iniciar Sesion
 void mostrarMenuIniciarSesion()
 {
     cout << "\n=== INICIAR SESION ===" << endl;
@@ -371,6 +376,7 @@ void mostrarMenuIniciarSesion()
     cout << "Opcion: ";
 }
 
+//Menu Cliente
 void mostrarMenuCliente()
 {
     cout << "\n=== MENU CLIENTE ===" << endl;
@@ -380,6 +386,7 @@ void mostrarMenuCliente()
     cout << "Opcion: ";
 }
 
+//Menu Mensajero
 void mostrarMenuMensajero()
 {
     cout << "\n=== MENU MENSAJERO ===" << endl;
@@ -389,6 +396,7 @@ void mostrarMenuMensajero()
     cout << "Opcion: ";
 }
 
+//Menu Administrador
 void mostrarMenuAdministrador()
 {
     cout << "\n=== MENU ADMINISTRADOR ===" << endl;
@@ -399,10 +407,12 @@ void mostrarMenuAdministrador()
     cout << "5. Ver Ordenes" << endl;
     cout << "6. Guardar Usuarios en Archivo" << endl;
     cout << "7. Cargar Usuarios desde Archivo" << endl;
+    cout << "8. Eliminar Usuario" << endl;
     cout << "0. Volver al menu principal" << endl;
     cout << "Opcion: ";
 }
 
+// Menu Cliente
 void menuCliente(SistemaEnvios &sistema, string clienteId)
 {
     int opcion;
@@ -714,6 +724,7 @@ void menuCliente(SistemaEnvios &sistema, string clienteId)
     } while (opcion != 0);
 }
 
+// Menu Mensajero
 void menuMensajero(SistemaEnvios &sistema, string mensajeroId)
 {
     int opcion;
@@ -864,6 +875,7 @@ void menuMensajero(SistemaEnvios &sistema, string mensajeroId)
     } while (opcion != 0);
 }
 
+// Menu Administrador
 void menuAdministrador(SistemaEnvios &sistema, string adminId)
 {
     int opcion;
@@ -1101,11 +1113,154 @@ void menuAdministrador(SistemaEnvios &sistema, string adminId)
             }
             break;
         }
+
+        case 8:
+        { // Eliminar Usuario
+            vector<Usuario *> usuarios = sistema.obtenerUsuarios();
+            
+            if (usuarios.empty())
+            {
+                cout << "No hay usuarios registrados en el sistema." << endl;
+                break;
+            }
+
+            // Mostrar resumen de usuarios por categoría (excluyendo al admin actual)
+            cout << "\n=== RESUMEN DE USUARIOS REGISTRADOS ===" << endl;
+            cout << "(No se muestra el administrador actual por seguridad)" << endl;
+            
+            cout << "\n--- CLIENTES ---" << endl;
+            int contClientes = 0;
+            for (Usuario *u : usuarios)
+            {
+                if (u->getTipo() == "Cliente")
+                {
+                    cout << "ID: " << u->getId() << " | Nombre: " << u->getNombre() << endl;
+                    contClientes++;
+                }
+            }
+            if (contClientes == 0)
+                cout << "(No hay clientes registrados)" << endl;
+
+            cout << "\n--- MENSAJEROS ---" << endl;
+            int contMensajeros = 0;
+            for (Usuario *u : usuarios)
+            {
+                if (u->getTipo() == "Mensajero")
+                {
+                    cout << "ID: " << u->getId() << " | Nombre: " << u->getNombre() << endl;
+                    contMensajeros++;
+                }
+            }
+            if (contMensajeros == 0)
+                cout << "(No hay mensajeros registrados)" << endl;
+
+            cout << "\n--- CONTROLADORES ---" << endl;
+            int contControladores = 0;
+            for (Usuario *u : usuarios)
+            {
+                if (u->getTipo() == "Controlador")
+                {
+                    cout << "ID: " << u->getId() << " | Nombre: " << u->getNombre() << endl;
+                    contControladores++;
+                }
+            }
+            if (contControladores == 0)
+                cout << "(No hay controladores registrados)" << endl;
+
+            cout << "\n--- ADMINISTRADORES ---" << endl;
+            int contAdmins = 0;
+            for (Usuario *u : usuarios)
+            {
+                if (u->getTipo() == "Administrador" && u->getId() != adminId)
+                {
+                    cout << "ID: " << u->getId() << " | Nombre: " << u->getNombre() << endl;
+                    contAdmins++;
+                }
+            }
+            if (contAdmins == 0)
+                cout << "(No hay otros administradores registrados)" << endl;
+
+            cout << "\n========================================" << endl;
+            cout << "Total de usuarios mostrados: " << (contClientes + contMensajeros + contControladores + contAdmins) << endl;
+            cout << "========================================" << endl;
+
+                // Solicitar ID del usuario a eliminar con validación en bucle
+                string idEliminar;
+                Usuario *usuarioEliminar = nullptr;
+            
+                while (true)
+                {
+                    cout << "\nIngrese el ID del usuario que desea eliminar (Enter para cancelar): ";
+                    getline(cin, idEliminar);
+
+                    if (idEliminar.empty())
+                    {
+                        cout << "Operacion cancelada." << endl;
+                        break;
+                    }
+
+                    // Protección: No permitir eliminar al administrador actual
+                    if (idEliminar == adminId)
+                    {
+                        cout << "Error: No puede eliminar su propia cuenta de administrador." << endl;
+                        cout << "Por favor, ingrese un ID diferente." << endl;
+                        continue;
+                    }
+
+                    // Verificar que el usuario existe
+                    usuarioEliminar = sistema.buscarUsuario(idEliminar);
+                    if (!usuarioEliminar)
+                    {
+                        cout << "Error: No se encontro un usuario con el ID '" << idEliminar << "'." << endl;
+                        cout << "Por favor, ingrese un ID valido o presione Enter para cancelar." << endl;
+                        continue;
+                    }
+
+                    // Usuario válido encontrado, salir del bucle
+                    break;
+                }
+
+                // Si el usuario canceló o no se encontró usuario válido
+                if (idEliminar.empty() || !usuarioEliminar)
+                {
+                    break;
+                }
+
+            // Confirmar eliminación
+            cout << "\n¿Esta seguro que desea eliminar al usuario?" << endl;
+            cout << "Tipo: " << usuarioEliminar->getTipo() << endl;
+            cout << "ID: " << usuarioEliminar->getId() << endl;
+            cout << "Nombre: " << usuarioEliminar->getNombre() << endl;
+            cout << "Email: " << usuarioEliminar->getEmail() << endl;
+            cout << "\nConfirmar eliminacion (s/n): ";
+            
+            char confirmar;
+            cin >> confirmar;
+            cin.ignore();
+
+            if (confirmar == 's' || confirmar == 'S')
+            {
+                if (sistema.eliminarUsuario(idEliminar))
+                {
+                    cout << "Usuario eliminado exitosamente." << endl;
+                    cout << "El usuario ha sido desactivado del sistema." << endl;
+                }
+                else
+                {
+                    cout << "Error al eliminar el usuario." << endl;
+                }
+            }
+            else
+            {
+                cout << "Operacion cancelada." << endl;
+            }
+            break;
+        }
         }
     } while (opcion != 0);
 }
 
-// Nuevo: menú específico para Controlador
+// Menú específico para Controlador
 void menuControlador(SistemaEnvios &sistema, string controladorId)
 {
     int opcion;
@@ -1535,8 +1690,8 @@ int main()
             } while (sub != 0);
             break;
         }
-        case 6:
-        { // Ingresar Mensajero
+        case 6: // Ingresar Mensajero
+        { 
             cout << "=== INGRESO DE MENSAJERO ===" << endl;
             cout << "ID Mensajero: ";
             getline(cin, nombre); // reutilizando variable nombre para el id
@@ -1553,9 +1708,8 @@ int main()
             }
             break;
         }
-
-        case 7:
-        { // Ingresar Administrador
+        case 7: // Ingresar Administrador
+        { 
             cout << "=== INGRESO DE ADMINISTRADOR ===" << endl;
             cout << "ID Administrador: ";
             getline(cin, nombre); // reutilizando variable nombre para el id
@@ -1572,8 +1726,8 @@ int main()
             }
             break;
         }
-        case 8:
-        { // Ingresar Controlador
+        case 8: // Ingresar Controlador
+        { 
             cout << "=== INGRESO DE CONTROLADOR ===" << endl;
             cout << "ID Controlador: ";
             getline(cin, nombre); // reutilizando variable nombre para el id

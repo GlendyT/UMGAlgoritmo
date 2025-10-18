@@ -63,3 +63,5 @@ public:
 };
 
 #endif
+
+/*Aqui se asigna que datos tendra un usuario, por ejemplo nombre, direccion, telefono, etc. Tambien se define que rol va a tener cada usuario. */
