@@ -427,6 +427,14 @@ void menuCliente(SistemaEnvios &sistema, string clienteId)
             continue;
         }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
+        // Validar opción antes del switch
+        if (opcion != 0 && opcion != 1 && opcion != 2)
+        {
+            cout << "Opcion invalida. Por favor seleccione 1, 2 o 0." << endl;
+            continue;
+        }
+        
         switch (opcion)
         {
         case 1:
@@ -720,6 +728,9 @@ void menuCliente(SistemaEnvios &sistema, string clienteId)
                 cout << "No hay ordenes registradas para este cliente." << endl;
             break;
         }
+        
+        case 0: // Salir
+            break;
         }
     } while (opcion != 0);
 }
@@ -739,6 +750,13 @@ void menuMensajero(SistemaEnvios &sistema, string mensajeroId)
             continue;
         }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
+        // Validar opción antes del switch
+        if (opcion != 0 && opcion != 1 && opcion != 2)
+        {
+            cout << "Opcion invalida. Por favor seleccione 1, 2 o 0." << endl;
+            continue;
+        }
 
         switch (opcion)
         {
@@ -871,6 +889,9 @@ void menuMensajero(SistemaEnvios &sistema, string mensajeroId)
             }
             break;
         }
+        
+        case 0: // Salir
+            break;
         }
     } while (opcion != 0);
 }
@@ -882,8 +903,21 @@ void menuAdministrador(SistemaEnvios &sistema, string adminId)
     do
     {
         mostrarMenuAdministrador();
-        cin >> opcion;
-        cin.ignore();
+        if (!(cin >> opcion))
+        {
+            cout << "Entrada invalida. Por favor ingrese una opcion numerica." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
+        // Validar opción antes del switch
+        if (opcion != 0 && (opcion < 1 || opcion > 8))
+        {
+            cout << "Opcion invalida. Por favor seleccione una opcion valida (1-8 o 0)." << endl;
+            continue;
+        }
 
         switch (opcion)
         {
@@ -1256,6 +1290,9 @@ void menuAdministrador(SistemaEnvios &sistema, string adminId)
             }
             break;
         }
+        
+        case 0: // Salir
+            break;
         }
     } while (opcion != 0);
 }
@@ -1272,8 +1309,21 @@ void menuControlador(SistemaEnvios &sistema, string controladorId)
         cout << "0. Volver al menu principal" << endl;
         cout << "Opcion: ";
 
-        cin >> opcion;
-        cin.ignore();
+        if (!(cin >> opcion))
+        {
+            cout << "Entrada invalida. Por favor ingrese una opcion numerica." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
+        // Validar opción antes del switch
+        if (opcion != 0 && opcion != 1 && opcion != 2)
+        {
+            cout << "Opcion invalida. Por favor seleccione 1, 2 o 0." << endl;
+            continue;
+        }
 
         switch (opcion)
         {
@@ -1452,6 +1502,9 @@ void menuControlador(SistemaEnvios &sistema, string controladorId)
             }
             break;
         }
+        
+        case 0: // Salir
+            break;
         }
     } while (opcion != 0);
 }
@@ -1488,8 +1541,21 @@ int main()
     do
     {
         mostrarMenuPrincipal();
-        cin >> opcion;
-        cin.ignore();
+        if (!(cin >> opcion))
+        {
+            cout << "Entrada invalida. Por favor ingrese una opcion numerica." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
+        // Validar opción antes del switch
+        if (opcion != 0 && opcion != 1 && opcion != 2)
+        {
+            cout << "Opcion invalida. Por favor seleccione 1, 2 o 0." << endl;
+            continue;
+        }
 
         switch (opcion)
         {
@@ -1506,7 +1572,15 @@ int main()
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     continue;
                 }
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                
+                // Validar opción antes del switch
+                if (sub != 0 && (sub < 1 || sub > 4))
+                {
+                    cout << "Opcion invalida. Por favor seleccione 1, 2, 3, 4 o 0." << endl;
+                    continue;
+                }
+                
                 switch (sub)
                 {
                 case 1: // Ingresar Cliente
@@ -1579,8 +1653,6 @@ int main()
                 }
                 case 0:
                     break;
-                default:
-                    cout << "Opcion invalida en el submenu." << endl;
                 }
             } while (sub != 0);
             break;
@@ -1599,7 +1671,15 @@ int main()
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     continue;
                 }
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                
+                // Validar opción antes del switch
+                if (sub != 0 && (sub < 1 || sub > 4))
+                {
+                    cout << "Opcion invalida. Por favor seleccione 1, 2, 3, 4 o 0." << endl;
+                    continue;
+                }
+                
                 switch (sub)
                 {
                 case 1: // Registrar Cliente
@@ -1684,66 +1764,13 @@ int main()
                 }
                 case 0:
                     break;
-                default:
-                    cout << "Opcion invalida en el submenu." << endl;
                 }
             } while (sub != 0);
             break;
         }
-        case 6: // Ingresar Mensajero
-        { 
-            cout << "=== INGRESO DE MENSAJERO ===" << endl;
-            cout << "ID Mensajero: ";
-            getline(cin, nombre); // reutilizando variable nombre para el id
-
-            Usuario *usuario = sistema.buscarUsuario(nombre);
-            if (usuario && usuario->getTipo() == "Mensajero")
-            {
-                cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuMensajero(sistema, nombre);
-            }
-            else
-            {
-                cout << "Mensajero no encontrado o ID invalido!" << endl;
-            }
+        
+        case 0: // Salir
             break;
-        }
-        case 7: // Ingresar Administrador
-        { 
-            cout << "=== INGRESO DE ADMINISTRADOR ===" << endl;
-            cout << "ID Administrador: ";
-            getline(cin, nombre); // reutilizando variable nombre para el id
-
-            Usuario *usuario = sistema.buscarUsuario(nombre);
-            if (usuario && usuario->getTipo() == "Administrador")
-            {
-                cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuAdministrador(sistema, nombre);
-            }
-            else
-            {
-                cout << "Administrador no encontrado o ID invalido!" << endl;
-            }
-            break;
-        }
-        case 8: // Ingresar Controlador
-        { 
-            cout << "=== INGRESO DE CONTROLADOR ===" << endl;
-            cout << "ID Controlador: ";
-            getline(cin, nombre); // reutilizando variable nombre para el id
-
-            Usuario *usuario = sistema.buscarUsuario(nombre);
-            if (usuario && usuario->getTipo() == "Controlador")
-            {
-                cout << "Bienvenido " << usuario->getNombre() << "!" << endl;
-                menuControlador(sistema, nombre);
-            }
-            else
-            {
-                cout << "Controlador no encontrado o ID invalido!" << endl;
-            }
-            break;
-        }
         }
     } while (opcion != 0);
 
