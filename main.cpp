@@ -346,9 +346,9 @@ void mostrarMenuPrincipal()
     cout << "\n===  SISTEMA DE ENVIOS GARANTIZADOS  ===" << endl;
     cout << "Bienvenido! Si ya tienes una cuenta, puedes iniciar sesion o crear una nueva." << endl;
     cout << endl;
-    cout << "1 Iniciar Sesion" << endl;
-    cout << "2 Crea una cuenta" << endl;
-    cout << "0 Salir" << endl;
+    cout << "1. Iniciar Sesion" << endl;
+    cout << "2. Crea una cuenta" << endl;
+    cout << "0. Salir" << endl;
     cout << "Opcion: ";
 }
 
@@ -862,7 +862,8 @@ void menuMensajero(SistemaEnvios &sistema, string mensajeroId)
             // Validar estado con reintentos
             while (true)
             {
-                cout << "Estado (0=Solicitado, 1=En Transito, 2=Entregado): ";
+                cout << "Estado (1. En Transito): ";
+                cout << "Estado (2. Entregado): ";
                 if (!(cin >> estado))
                 {
                     cout << "Entrada invalida. Por favor ingrese 0, 1 o 2." << endl;
