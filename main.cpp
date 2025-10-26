@@ -570,18 +570,19 @@ void menuCliente(SistemaEnvios &sistema, string clienteId)
             {
                 pagoDetalle = "Pago con tarjeta";
                 string tarjetaNum, tarjetaNombre, vigencia, cvv;
-                // Numero de tarjeta: solo digitos, hasta 16
+                // Numero de tarjeta: debe contener exactamente 16 digitos
                 do
                 {
-                    cout << "Ingrese numero de tarjeta (maximo 16 digitos, puede incluir espacios o guiones): ";
+                    cout << "Ingrese numero de tarjeta (exactamente 16 digitos, puede incluir espacios o guiones): ";
                     getline(cin, tarjetaNum);
                     string tarjetaDigits2;
                     for (char c : tarjetaNum)
                         if (isdigit(static_cast<unsigned char>(c)))
                             tarjetaDigits2.push_back(c);
-                    if (tarjetaDigits2.empty() || tarjetaDigits2.size() > 16)
+                    // Requerir exactamente 16 digitos
+                    if (tarjetaDigits2.size() != 16)
                     {
-                        cout << "Numero de tarjeta invalido. Debe contener entre 1 y 16 digitos." << endl;
+                        cout << "Numero de tarjeta invalido. Debe contener exactamente 16 digitos." << endl;
                         tarjetaNum.clear();
                     }
                     else
